@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Wallet">
+<meta name="theme-color" content="#0e0d15">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='40' fill='%23ab9ff2'/%3E%3Ctext x='90' y='120' font-size='90' text-anchor='middle' fill='white' font-family='Arial'%3E◆%3C/text%3E%3C/svg%3E">
+<title>Wallet</title>
+<style>
+:root{
+  --bg:#0e0d15;--card:#17161f;--card2:#1e1c29;--text:#ffffff;--sub:#8f8ca3;
+  --accent:#ab9ff2;--accent2:#7b6fe0;--green:#21c187;--red:#ff5c5c;--line:#232132;
+  --chip:#232132;--nav:#12111a;
+}
+[data-theme="light"]{
+  --bg:#f6f6f9;--card:#ffffff;--card2:#f0eff7;--text:#17161f;--sub:#77748c;
+  --accent:#6c5ce7;--accent2:#7b6fe0;--green:#0daa72;--red:#e64545;--line:#e8e7f0;
+  --chip:#edecf5;--nav:#ffffff;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,sans-serif;
+  background:var(--bg);color:var(--text);max-width:430px;margin:0 auto;
+  min-height:100vh;padding-bottom:86px;transition:background .25s,color .25s;
+  user-select:none;-webkit-user-select:none;
+  padding-top:env(safe-area-inset-top);
+}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 18px 6px}
+.acct{display:flex;align-items:center;gap:10px;background:var(--chip);border-radius:22px;padding:7px 14px 7px 8px;cursor:pointer}
+.avatar{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,#ab9ff2,#4e44ce);display:flex;align-items:center;justify-content:center;font-size:12px}
+.acct .name{font-weight:600;font-size:14px}
+.acct .addr{font-size:11px;color:var(--sub)}
+.topicons{display:flex;gap:8px}
+.iconbtn{width:36px;height:36px;border-radius:50%;background:var(--chip);border:none;color:var(--text);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px}
+.balwrap{text-align:center;padding:18px 18px 6px}
+.ballabel{font-size:13px;color:var(--sub);letter-spacing:.3px}
+.balance{font-size:44px;font-weight:700;letter-spacing:-1px;margin:6px 0 4px;cursor:pointer}
+.balchange{font-size:15px;font-weight:600}
+.balchange .pct{border-radius:8px;padding:2px 8px;margin-left:6px;font-size:13px}
+.chart{padding:6px 0 0}
+.chart svg{width:100%;height:88px;display:block}
+.ranges{display:flex;justify-content:center;gap:6px;padding:4px 0 12px}
+.range{border:none;background:transparent;color:var(--sub);font-size:12px;font-weight:600;padding:5px 12px;border-radius:14px;cursor:pointer}
+.range.active{background:var(--chip);color:var(--text)}
+.actions{display:flex;justify-content:center;gap:22px;padding:8px 18px 20px}
+.action{display:flex;flex-direction:column;align-items:center;gap:7px;background:none;border:none;cursor:pointer;color:var(--text)}
+.action .circ{width:52px;height:52px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 6px 18px rgba(123,111,224,.35)}
+[data-theme="light"] .action .circ{box-shadow:0 6px 18px rgba(108,92,231,.28)}
+.action span{font-size:12px;font-weight:600;color:var(--sub)}
+.section{padding:0 16px}
+.sectionhead{display:flex;justify-content:space-between;align-items:center;padding:10px 4px 10px}
+.sectionhead h2{font-size:18px;font-weight:700}
+.sectionhead .more{font-size:13px;color:var(--accent);font-weight:600;cursor:pointer}
+.card{background:var(--card);border-radius:18px;overflow:hidden;border:1px solid var(--line)}
+.row{display:flex;align-items:center;gap:12px;padding:14px;border-bottom:1px solid var(--line);cursor:pointer}
+.row:last-child{border-bottom:none}
+.coin{width:42px;height:42px;border-radius:50%;flex-shrink:0}
+.coin svg{width:42px;height:42px}
+.rowmid{flex:1;min-width:0}
+.rowmid .t{font-weight:600;font-size:15px}
+.rowmid .s{font-size:12.5px;color:var(--sub);margin-top:2px}
+.rowright{text-align:right}
+.rowright .v{font-weight:600;font-size:15px}
+.rowright .c{font-size:12.5px;margin-top:2px;font-weight:600}
+.up{color:var(--green)}.down{color:var(--red)}
+.txicon{width:40px;height:40px;border-radius:50%;background:var(--chip);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:var(--nav);border-top:1px solid var(--line);display:flex;justify-content:space-around;padding:10px 8px calc(10px + env(safe-area-inset-bottom));z-index:50}
+.navbtn{background:none;border:none;color:var(--sub);display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10.5px;font-weight:600;cursor:pointer;width:64px}
+.navbtn.active{color:var(--accent)}
+.navbtn .ni{font-size:20px}
+.page{display:none}
+.page.active{display:block}
+.pagetitle{font-size:26px;font-weight:800;padding:8px 18px 14px}
+/* portfolio */
+.allocbar{display:flex;height:14px;border-radius:8px;overflow:hidden;margin:4px 18px 16px}
+.allocseg{height:100%}
+.legend{padding:0 18px 8px;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.legitem{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600}
+.dot{width:10px;height:10px;border-radius:3px}
+.legitem .lp{color:var(--sub);font-weight:600;margin-left:auto}
+.statgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:6px 16px 16px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px}
+.stat .sl{font-size:12px;color:var(--sub);font-weight:600}
+.stat .sv{font-size:19px;font-weight:700;margin-top:4px}
+/* swap */
+.swapbox{margin:0 16px;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px}
+.swaprow{background:var(--card2);border-radius:14px;padding:14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.swaprow .sl{font-size:12px;color:var(--sub);font-weight:600}
+.swaprow .amt{font-size:24px;font-weight:700;background:none;border:none;color:var(--text);width:55%;outline:none}
+.tokchip{display:flex;align-items:center;gap:8px;background:var(--chip);border-radius:20px;padding:6px 12px;font-weight:700;font-size:15px;cursor:pointer}
+.tokchip svg{width:24px;height:24px}
+.swapmid{display:flex;justify-content:center;margin:-4px 0}
+.swapmid button{width:38px;height:38px;border-radius:50%;background:var(--chip);border:3px solid var(--card);color:var(--text);font-size:16px;cursor:pointer}
+.swapinfo{display:flex;justify-content:space-between;font-size:12.5px;color:var(--sub);padding:10px 4px 2px;font-weight:600}
+.bigbtn{width:100%;background:var(--accent);color:#fff;border:none;border-radius:14px;padding:15px;font-size:16px;font-weight:700;cursor:pointer;margin-top:12px}
+/* nfts */
+.nftgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0 16px}
+.nft{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden;cursor:pointer}
+.nftimg{aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:44px}
+.nftmeta{padding:10px 12px}
+.nftmeta .nt{font-weight:700;font-size:13.5px}
+.nftmeta .ns{font-size:12px;color:var(--sub);margin-top:2px;font-weight:600}
+/* sheet */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:99;display:none}
+.overlay.show{display:block}
+.sheet{position:fixed;left:50%;transform:translateX(-50%) translateY(105%);bottom:0;width:100%;max-width:430px;background:var(--card);border-radius:22px 22px 0 0;z-index:100;padding:14px 18px calc(24px + env(safe-area-inset-bottom));transition:transform .28s cubic-bezier(.3,.9,.3,1);max-height:85vh;overflow:auto}
+.sheet.show{transform:translateX(-50%) translateY(0)}
+.grab{width:40px;height:4px;border-radius:2px;background:var(--line);margin:0 auto 14px}
+.sheet h3{font-size:17px;margin-bottom:14px}
+.field{margin-bottom:12px}
+.field label{display:block;font-size:12px;color:var(--sub);font-weight:600;margin-bottom:6px}
+.field input{width:100%;background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:12px 14px;color:var(--text);font-size:16px;font-weight:600;outline:none}
+.field input:focus{border-color:var(--accent)}
+.sheetbtn{width:100%;background:var(--accent);color:#fff;border:none;border-radius:14px;padding:14px;font-size:16px;font-weight:700;cursor:pointer;margin-top:6px}
+.smallnote{font-size:11px;color:var(--sub);text-align:center;margin-top:10px}
+.toast{position:fixed;top:calc(16px + env(safe-area-inset-top));left:50%;transform:translateX(-50%) translateY(-90px);background:var(--card);color:var(--text);border:1px solid var(--line);padding:10px 18px;border-radius:14px;font-size:14px;font-weight:600;z-index:200;transition:transform .3s;box-shadow:0 8px 30px rgba(0,0,0,.25)}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.pill{font-size:10px;background:var(--chip);color:var(--sub);border-radius:6px;padding:2px 6px;margin-left:6px;font-weight:700;vertical-align:middle}
+</style>
+</head>
+<body data-theme="dark">
+
+<div class="topbar">
+  <div class="acct" id="acctChip">
+    <div class="avatar">◆</div>
+    <div>
+      <div class="name" id="acctName">Wallet 1</div>
+      <div class="addr">Gx4k…9fQz</div>
+    </div>
+  </div>
+  <div class="topicons">
+    <button class="iconbtn" id="themeBtn">◐</button>
+    <button class="iconbtn" id="editBtn">⚙︎</button>
+  </div>
+</div>
+
+<!-- ============ HOME ============ -->
+<div class="page active" id="pg-home">
+  <div class="balwrap">
+    <div class="ballabel">Total Balance</div>
+    <div class="balance" id="balance"></div>
+    <div class="balchange"><span class="amt" id="chAmt"></span><span class="pct" id="chPct"></span></div>
+  </div>
+  <div class="chart">
+    <svg viewBox="0 0 430 88" preserveAspectRatio="none">
+      <defs><linearGradient id="grad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#ab9ff2" stop-opacity=".35"/><stop offset="1" stop-color="#ab9ff2" stop-opacity="0"/>
+      </linearGradient></defs>
+      <path id="chartFill" fill="url(#grad)"/>
+      <path id="chartLine" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round"/>
+    </svg>
+    <div class="ranges">
+      <button class="range">1H</button><button class="range active">1D</button><button class="range">1W</button>
+      <button class="range">1M</button><button class="range">1Y</button><button class="range">ALL</button>
+    </div>
+  </div>
+  <div class="actions">
+    <button class="action"><div class="circ">＋</div><span>Buy</span></button>
+    <button class="action"><div class="circ">↗</div><span>Send</span></button>
+    <button class="action"><div class="circ">↙</div><span>Receive</span></button>
+    <button class="action" data-goto="pg-swap"><div class="circ">⇄</div><span>Swap</span></button>
+  </div>
+  <div class="section">
+    <div class="sectionhead"><h2>Tokens</h2><div class="more" data-goto="pg-port">See all</div></div>
+    <div class="card" id="tokenList"></div>
+  </div>
+  <div class="section" style="margin-top:18px">
+    <div class="sectionhead"><h2>Recent Activity</h2><div class="more" data-goto="pg-act">See all</div></div>
+    <div class="card" id="txListShort"></div>
+  </div>
+  <div style="height:20px"></div>
+</div>
+
+<!-- ============ PORTFOLIO ============ -->
+<div class="page" id="pg-port">
+  <div class="pagetitle">Portfolio</div>
+  <div class="allocbar" id="allocBar"></div>
+  <div class="legend" id="allocLegend"></div>
+  <div class="statgrid">
+    <div class="stat"><div class="sl">All-time profit</div><div class="sv up" id="stProfit"></div></div>
+    <div class="stat"><div class="sl">Best performer</div><div class="sv">JUP <span class="up" style="font-size:14px">+412%</span></div></div>
+    <div class="stat"><div class="sl">Cost basis</div><div class="sv" id="stCost"></div></div>
+    <div class="stat"><div class="sl">Staked</div><div class="sv" id="stStaked"></div></div>
+  </div>
+  <div class="section">
+    <div class="sectionhead"><h2>Holdings</h2></div>
+    <div class="card" id="tokenListFull"></div>
+  </div>
+  <div style="height:20px"></div>
+</div>
+
+<!-- ============ SWAP ============ -->
+<div class="page" id="pg-swap">
+  <div class="pagetitle">Swap</div>
+  <div class="swapbox">
+    <div class="swaprow">
+      <div><div class="sl">You pay</div><input class="amt" id="swapIn" inputmode="decimal" value="1000"></div>
+      <div class="tokchip" id="chipIn"></div>
+    </div>
+    <div class="swapmid"><button id="swapFlip">↓↑</button></div>
+    <div class="swaprow">
+      <div><div class="sl">You receive</div><div class="amt" id="swapOut">—</div></div>
+      <div class="tokchip" id="chipOut"></div>
+    </div>
+    <div class="swapinfo"><span>Rate</span><span id="swapRate"></span></div>
+    <div class="swapinfo"><span>Network fee</span><span>~$0.02</span></div>
+    <div class="swapinfo"><span>Slippage</span><span>0.5%</span></div>
+    <button class="bigbtn" id="swapBtn">Review Swap</button>
+  </div>
+  <div style="height:20px"></div>
+</div>
+
+<!-- ============ NFTS ============ -->
+<div class="page" id="pg-nft">
+  <div class="pagetitle">Collectibles</div>
+  <div class="nftgrid" id="nftGrid"></div>
+  <div style="height:20px"></div>
+</div>
+
+<!-- ============ ACTIVITY ============ -->
+<div class="page" id="pg-act">
+  <div class="pagetitle">Activity</div>
+  <div class="section"><div class="card" id="txListFull"></div></div>
+  <div style="height:20px"></div>
+</div>
+
+<nav class="nav">
+  <button class="navbtn active" data-page="pg-home"><span class="ni">◆</span>Home</button>
+  <button class="navbtn" data-page="pg-port"><span class="ni">▤</span>Portfolio</button>
+  <button class="navbtn" data-page="pg-swap"><span class="ni">⇄</span>Swap</button>
+  <button class="navbtn" data-page="pg-nft"><span class="ni">◈</span>NFTs</button>
+  <button class="navbtn" data-page="pg-act"><span class="ni">☰</span>Activity</button>
+</nav>
+
+<div class="overlay" id="overlay"></div>
+<div class="sheet" id="sheet">
+  <div class="grab"></div>
+  <h3>Edit wallet <span class="pill">MOCKUP</span></h3>
+  <div class="field"><label>Wallet name</label><input id="inName" value="Wallet 1"></div>
+  <div class="field"><label>Total balance ($)</label><input id="inBal" inputmode="decimal" value="4281904.55"></div>
+  <div class="field"><label>Today's change ($)</label><input id="inChAmt" inputmode="decimal" value="182340.12"></div>
+  <div class="field"><label>Today's change (%)</label><input id="inChPct" inputmode="decimal" value="4.45"></div>
+  <button class="sheetbtn" id="saveBtn">Save</button>
+  <div class="smallnote">all numbers are fake & only live on this screen — refresh resets everything</div>
+</div>
+
+<div class="toast" id="toast">saved</div>
+
+<script>
+const $=s=>document.querySelector(s);
+const $$=s=>document.querySelectorAll(s);
+const fmt=n=>'$'+Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fmt0=n=>'$'+Number(n).toLocaleString('en-US',{maximumFractionDigits:0});
+
+let state={name:'Wallet 1',bal:4281904.55,chAmt:182340.12,chPct:4.45};
+
+function icon(sym,color,glyph){return `<svg viewBox="0 0 42 42"><circle cx="21" cy="21" r="21" fill="${color}"/><text x="21" y="28" font-size="18" font-weight="700" text-anchor="middle" fill="#fff" font-family="Arial">${glyph}</text></svg>`}
+const TOKENS=[
+ {sym:'SOL', name:'Solana',  w:.38, price:172.40, ch:+5.12, color:'#9945FF', icon:icon('SOL','#9945FF','S')},
+ {sym:'BTC', name:'Bitcoin', w:.31, price:64230.18, ch:+1.87, color:'#F7931A', icon:icon('BTC','#F7931A','₿')},
+ {sym:'ETH', name:'Ethereum',w:.21, price:3412.55, ch:-0.92, color:'#627EEA', icon:icon('ETH','#627EEA','Ξ')},
+ {sym:'USDC',name:'USD Coin',w:.07, price:1.00,  ch:+0.01, color:'#2775CA', icon:icon('USDC','#2775CA','$')},
+ {sym:'JUP', name:'Jupiter', w:.03, price:1.14,  ch:+12.4, color:'#19D3C5', icon:icon('JUP','#0e8f86','J')},
+];
+const TXS=[
+ {i:'↙',t:'Received SOL',s:'From Gx4k…2mPa · 2h ago',v:'+2,140 SOL',c:'up'},
+ {i:'⇄',t:'Swapped USDC → SOL',s:'Jupiter · 5h ago',v:'+412.8 SOL',c:'up'},
+ {i:'↗',t:'Sent ETH',s:'To 0x8aF…41cD · Yesterday',v:'−14.2 ETH',c:'down'},
+ {i:'↙',t:'Received BTC',s:'From bc1q…x7ne · 2d ago',v:'+1.184 BTC',c:'up'},
+ {i:'＋',t:'Staking reward',s:'Marinade · 3d ago',v:'+38.6 SOL',c:'up'},
+ {i:'⇄',t:'Swapped SOL → JUP',s:'Jupiter · 4d ago',v:'+84,200 JUP',c:'up'},
+ {i:'↙',t:'Received USDC',s:'From 9hWq…pL2m · 5d ago',v:'+120,000 USDC',c:'up'},
+ {i:'＋',t:'Staking reward',s:'Marinade · 6d ago',v:'+37.9 SOL',c:'up'},
+ {i:'↗',t:'Sent SOL',s:'To Fz7q…8kLm · 1w ago',v:'−500 SOL',c:'down'},
+ {i:'◈',t:'NFT purchase',s:'Magic Eden · 1w ago',v:'−72 SOL',c:'down'},
+ {i:'↙',t:'Received ETH',s:'From 0x3bC…99aE · 2w ago',v:'+40.0 ETH',c:'up'},
+ {i:'＋',t:'Airdrop claimed',s:'JUP · 3w ago',v:'+61,000 JUP',c:'up'},
+];
+const NFTS=[
+ {e:'🐒',g:'linear-gradient(135deg,#f6d365,#fda085)',t:'Degen Ape #4821',s:'Floor 42 SOL'},
+ {e:'👾',g:'linear-gradient(135deg,#a18cd1,#fbc2eb)',t:'Mad Lad #1207',s:'Floor 118 SOL'},
+ {e:'🦴',g:'linear-gradient(135deg,#84fab0,#8fd3f4)',t:'Claynosaur #883',s:'Floor 9.8 SOL'},
+ {e:'🌀',g:'linear-gradient(135deg,#30cfd0,#330867)',t:'Tensorian #3391',s:'Floor 14 SOL'},
+ {e:'🔥',g:'linear-gradient(135deg,#ff9a9e,#f6416c)',t:'Famous Fox #662',s:'Floor 31 SOL'},
+ {e:'🧊',g:'linear-gradient(135deg,#e0c3fc,#8ec5fc)',t:'SMB Gen2 #4410',s:'Floor 55 SOL'},
+];
+
+let swapFrom=0, swapTo=1;
+
+function render(){
+  $('#acctName').textContent=state.name;
+  $('#balance').textContent=fmt(state.bal);
+  const up=state.chAmt>=0;
+  $('#chAmt').textContent=(up?'+':'−')+fmt(Math.abs(state.chAmt));
+  $('#chAmt').className='amt '+(up?'up':'down');
+  $('#chPct').textContent=(up?'+':'−')+Math.abs(state.chPct).toFixed(2)+'%';
+  $('#chPct').style.color=up?'var(--green)':'var(--red)';
+  $('#chPct').style.background=up?'rgba(33,193,135,.15)':'rgba(255,92,92,.15)';
+
+  const tokRow=t=>{
+    const val=state.bal*t.w, amt=val/t.price, u=t.ch>=0;
+    return `<div class="row"><div class="coin">${t.icon}</div>
+      <div class="rowmid"><div class="t">${t.name}</div>
+      <div class="s">${amt.toLocaleString('en-US',{maximumFractionDigits:amt>1000?0:4})} ${t.sym}</div></div>
+      <div class="rowright"><div class="v">${fmt(val)}</div>
+      <div class="c ${u?'up':'down'}">${u?'+':''}${t.ch.toFixed(2)}%</div></div></div>`;
+  };
+  $('#tokenList').innerHTML=TOKENS.map(tokRow).join('');
+  $('#tokenListFull').innerHTML=TOKENS.map(tokRow).join('');
+
+  const txRow=x=>`<div class="row"><div class="txicon">${x.i}</div>
+    <div class="rowmid"><div class="t">${x.t}</div><div class="s">${x.s}</div></div>
+    <div class="rowright"><div class="v ${x.c}">${x.v}</div></div></div>`;
+  $('#txListShort').innerHTML=TXS.slice(0,5).map(txRow).join('');
+  $('#txListFull').innerHTML=TXS.map(txRow).join('');
+
+  // portfolio
+  $('#allocBar').innerHTML=TOKENS.map(t=>`<div class="allocseg" style="width:${t.w*100}%;background:${t.color}"></div>`).join('');
+  $('#allocLegend').innerHTML=TOKENS.map(t=>`<div class="legitem"><div class="dot" style="background:${t.color}"></div>${t.sym}<span class="lp">${(t.w*100).toFixed(0)}%</span></div>`).join('');
+  $('#stProfit').textContent='+'+fmt0(state.bal*0.64);
+  $('#stCost').textContent=fmt0(state.bal*0.36);
+  $('#stStaked').textContent=fmt0(state.bal*0.18);
+
+  // nfts
+  $('#nftGrid').innerHTML=NFTS.map(n=>`<div class="nft"><div class="nftimg" style="background:${n.g}">${n.e}</div>
+    <div class="nftmeta"><div class="nt">${n.t}</div><div class="ns">${n.s}</div></div></div>`).join('');
+
+  renderSwap();
+  drawChart();
+}
+
+function renderSwap(){
+  const a=TOKENS[swapFrom], b=TOKENS[swapTo];
+  $('#chipIn').innerHTML=a.icon+a.sym;
+  $('#chipOut').innerHTML=b.icon+b.sym;
+  const amt=parseFloat($('#swapIn').value)||0;
+  const out=amt*a.price/b.price;
+  $('#swapOut').textContent=out?out.toLocaleString('en-US',{maximumFractionDigits:out>100?2:5}):'—';
+  $('#swapRate').textContent=`1 ${a.sym} ≈ ${(a.price/b.price).toLocaleString('en-US',{maximumFractionDigits:5})} ${b.sym}`;
+}
+
+let chartSeed=42;
+function drawChart(){
+  const W=430,H=88,N=60;let pts=[],v=0.35,seed=chartSeed;
+  const rand=()=>{seed=(seed*9301+49297)%233280;return seed/233280};
+  for(let i=0;i<N;i++){v+=(rand()-0.44)*0.12;v=Math.max(0.08,Math.min(0.92,v));pts.push(v)}
+  for(let i=N-8;i<N;i++)pts[i]=Math.min(.92,pts[i]+(i-(N-8))*0.035);
+  const step=W/(N-1);
+  let d='M0 '+(H-pts[0]*H).toFixed(1);
+  pts.forEach((p,i)=>{if(i>0)d+=' L'+(i*step).toFixed(1)+' '+(H-p*H).toFixed(1)});
+  $('#chartLine').setAttribute('d',d);
+  $('#chartFill').setAttribute('d',d+` L${W} ${H} L0 ${H} Z`);
+}
+
+// nav / pages
+function goto(id){
+  $$('.page').forEach(p=>p.classList.remove('active'));
+  $('#'+id).classList.add('active');
+  $$('.navbtn').forEach(b=>b.classList.toggle('active',b.dataset.page===id));
+  window.scrollTo(0,0);
+}
+$$('.navbtn').forEach(b=>b.onclick=()=>goto(b.dataset.page));
+$$('[data-goto]').forEach(b=>b.onclick=()=>goto(b.dataset.goto));
+
+// theme
+$('#themeBtn').onclick=()=>{document.body.dataset.theme=document.body.dataset.theme==='dark'?'light':'dark'};
+
+// sheet
+const sheet=$('#sheet'),overlay=$('#overlay');
+function openSheet(){
+  $('#inName').value=state.name;$('#inBal').value=state.bal;
+  $('#inChAmt').value=state.chAmt;$('#inChPct').value=state.chPct;
+  overlay.classList.add('show');sheet.classList.add('show');
+}
+function closeSheet(){overlay.classList.remove('show');sheet.classList.remove('show')}
+$('#editBtn').onclick=openSheet;$('#balance').onclick=openSheet;overlay.onclick=closeSheet;
+$('#saveBtn').onclick=()=>{
+  state.name=$('#inName').value||'Wallet 1';
+  state.bal=parseFloat(String($('#inBal').value).replace(/[^0-9.\-]/g,''))||0;
+  state.chAmt=parseFloat(String($('#inChAmt').value).replace(/[^0-9.\-]/g,''))||0;
+  state.chPct=parseFloat(String($('#inChPct').value).replace(/[^0-9.\-]/g,''))||0;
+  render();closeSheet();toast('saved ✓');
+};
+
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1400)}
+
+$$('.range').forEach(b=>b.onclick=()=>{$$('.range').forEach(x=>x.classList.remove('active'));b.classList.add('active');chartSeed=Math.floor(Math.random()*99999);drawChart()});
+$$('.action').forEach(b=>{if(!b.dataset.goto)b.onclick=()=>toast('this is a mockup 😄')});
+$('#swapIn').oninput=renderSwap;
+$('#swapFlip').onclick=()=>{[swapFrom,swapTo]=[swapTo,swapFrom];renderSwap()};
+$('#swapBtn').onclick=()=>toast('mockup — no real swaps 😄');
+$('#chipIn').onclick=()=>{swapFrom=(swapFrom+1)%TOKENS.length;if(swapFrom===swapTo)swapFrom=(swapFrom+1)%TOKENS.length;renderSwap()};
+$('#chipOut').onclick=()=>{swapTo=(swapTo+1)%TOKENS.length;if(swapTo===swapFrom)swapTo=(swapTo+1)%TOKENS.length;renderSwap()};
+
+render();
+</script>
+</body>
+</html>
