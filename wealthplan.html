@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Meridian">
+<meta name="theme-color" content="#fbfbf9">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='40' fill='%23122c47'/%3E%3Ctext x='90' y='124' font-size='96' text-anchor='middle' fill='%23c8a35f' font-family='Georgia'%3EM%3C/text%3E%3C/svg%3E">
+<title>Meridian</title>
+<style>
+:root{
+  --bg:#fbfbf9;--card:#ffffff;--ink:#122c47;--text:#1c2b3a;--sub:#6b7a8c;
+  --line:#e7e5df;--hair:#eeece6;--gold:#a8843c;--navy:#122c47;--green:#2e7d57;--red:#b04a3f;
+  --track:#ece9e2;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,sans-serif;
+  background:var(--bg);color:var(--text);max-width:430px;margin:0 auto;min-height:100vh;
+  padding:env(safe-area-inset-top) 0 48px;user-select:none;-webkit-user-select:none;
+  font-variant-numeric:tabular-nums;
+}
+.serif{font-family:Georgia,"Times New Roman",serif}
+.caps{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--sub);font-weight:600}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:18px 20px 14px;border-bottom:1px solid var(--hair)}
+.brand{display:flex;align-items:center;gap:11px}
+.logo{width:34px;height:34px;border-radius:8px;background:var(--navy);color:var(--gold);display:flex;align-items:center;justify-content:center;font-family:Georgia,serif;font-size:19px}
+.brand .bt{font-family:Georgia,serif;font-size:18px;color:var(--ink);letter-spacing:.01em}
+.brand .bs{font-size:9.5px;letter-spacing:.16em;color:var(--gold);font-weight:700;margin-top:1px}
+.iconbtn{width:32px;height:32px;border-radius:50%;background:transparent;border:1px solid var(--line);color:var(--sub);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px}
+.hero{padding:26px 20px 22px;border-bottom:1px solid var(--hair)}
+.hero .hv{font-family:Georgia,serif;font-size:40px;color:var(--ink);letter-spacing:-.01em;margin:8px 0 6px;cursor:pointer}
+.hero .hm{font-size:13px;color:var(--sub)}
+.hero .hm b{color:var(--green);font-weight:600}
+.section{padding:22px 20px 0}
+.sechead{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px}
+.sechead h2{font-family:Georgia,serif;font-size:19px;color:var(--ink);font-weight:400}
+.goal{border:1px solid var(--line);border-radius:6px;background:var(--card);margin-bottom:12px;cursor:pointer;overflow:hidden}
+.gpad{padding:16px}
+.ghead{display:flex;align-items:baseline;gap:10px}
+.gmono{width:30px;height:30px;border-radius:5px;background:var(--navy);color:#fff;font-family:Georgia,serif;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;align-self:center}
+.gname{font-size:15.5px;font-weight:600;color:var(--ink)}
+.gyear{margin-left:auto;font-size:12px;color:var(--sub)}
+.gstat{font-size:11.5px;margin-top:2px;font-weight:600}
+.on-track{color:var(--green)}.check-in{color:var(--gold)}
+.bar{height:4px;background:var(--track);border-radius:2px;margin:14px 0 10px;overflow:hidden}
+.fill{height:100%;background:var(--navy);border-radius:2px}
+.gnums{display:flex;justify-content:space-between;font-size:12.5px;color:var(--sub)}
+.gnums b{color:var(--ink);font-weight:600}
+.grows{border-top:1px solid var(--hair);padding:12px 16px 14px;display:none;background:#fdfcfa}
+.goal.open .grows{display:block}
+.grow{display:flex;justify-content:space-between;font-size:13px;padding:4.5px 0}
+.grow .k{color:var(--sub)}
+.grow .v{color:var(--ink);font-weight:600}
+.assets{border:1px solid var(--line);border-radius:6px;background:var(--card);overflow:hidden}
+.arow{display:flex;align-items:baseline;padding:14px 16px;border-bottom:1px solid var(--hair)}
+.arow:last-child{border-bottom:none}
+.amid .at{font-size:14px;font-weight:600;color:var(--ink)}
+.amid .as{font-size:11.5px;color:var(--sub);margin-top:3px}
+.aval{margin-left:auto;font-size:14px;font-weight:600;color:var(--ink)}
+.totrow{background:#faf9f6}
+.disc{font-size:10px;color:var(--sub);line-height:1.55;padding:18px 20px 8px}
+.foot{text-align:center;padding:10px 20px 20px;font-size:10px;color:var(--sub);letter-spacing:.1em}
+/* sheet */
+.overlay{position:fixed;inset:0;background:rgba(18,44,71,.4);z-index:99;display:none}
+.overlay.show{display:block}
+.sheet{position:fixed;left:50%;transform:translateX(-50%) translateY(105%);bottom:0;width:100%;max-width:430px;background:var(--card);border-radius:14px 14px 0 0;z-index:100;padding:16px 20px calc(24px + env(safe-area-inset-bottom));transition:transform .28s cubic-bezier(.3,.9,.3,1);max-height:85vh;overflow:auto}
+.sheet.show{transform:translateX(-50%) translateY(0)}
+.grab{width:36px;height:4px;border-radius:2px;background:var(--line);margin:0 auto 16px}
+.sheet h3{font-family:Georgia,serif;font-size:17px;color:var(--ink);font-weight:400;margin-bottom:14px}
+.pill{font-size:9px;border:1px solid var(--line);color:var(--sub);border-radius:4px;padding:2px 6px;margin-left:8px;font-weight:700;letter-spacing:.08em;vertical-align:middle;font-family:-apple-system,sans-serif}
+.field{margin-bottom:10px}
+.field label{display:block;font-size:10.5px;color:var(--sub);font-weight:600;letter-spacing:.06em;text-transform:uppercase;margin-bottom:5px}
+.field input{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:11px 12px;color:var(--ink);font-size:15px;font-weight:600;outline:none}
+.field input:focus{border-color:var(--navy)}
+.frow{display:flex;gap:8px}.frow .field{flex:1}
+.sheetbtn{width:100%;background:var(--navy);color:#fff;border:none;border-radius:6px;padding:14px;font-size:14px;font-weight:700;letter-spacing:.04em;cursor:pointer;margin-top:6px}
+.smallnote{font-size:10px;color:var(--sub);text-align:center;margin-top:10px}
+.toast{position:fixed;top:calc(14px + env(safe-area-inset-top));left:50%;transform:translateX(-50%) translateY(-90px);background:var(--navy);color:#fff;padding:9px 18px;border-radius:6px;font-size:13px;font-weight:600;z-index:200;transition:transform .3s}
+.toast.show{transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <div class="logo">M</div>
+    <div><div class="bt">Meridian</div><div class="bs">PRIVATE WEALTH</div></div>
+  </div>
+  <div style="display:flex;gap:8px">
+    <button class="iconbtn" id="editBtn">✎</button>
+  </div>
+</div>
+
+<div class="hero">
+  <div class="caps">Net planned assets</div>
+  <div class="hv" id="totalAssets"></div>
+  <div class="hm"><b id="chgAmt"></b> this quarter &nbsp;·&nbsp; <span id="acctCount"></span> linked accounts &nbsp;·&nbsp; reviewed today</div>
+</div>
+
+<div class="section">
+  <div class="sechead"><h2>Goals</h2><span class="caps" id="goalCnt"></span></div>
+  <div id="goalList"></div>
+</div>
+
+<div class="section">
+  <div class="sechead"><h2>Dedicated assets</h2></div>
+  <div class="assets" id="assetList"></div>
+</div>
+
+<div class="disc">*Projections are hypothetical, do not reflect actual investment results, and are not guarantees of future results. Estimated amounts assume continued contributions and returns consistent with your plan profile. Asset values shown as of the most recent statement date and may differ from current market values. Please review the Important Disclosures accompanying your plan documents.</div>
+<div class="foot">MERIDIAN PRIVATE WEALTH · EST. MMXIX</div>
+
+<div class="overlay" id="overlay"></div>
+<div class="sheet" id="sheet">
+  <div class="grab"></div>
+  <h3>Edit plan <span class="pill">MOCKUP</span></h3>
+  <div id="goalFields"></div>
+  <button class="sheetbtn" id="saveBtn">Save changes</button>
+  <div class="smallnote">all numbers are fake — saved on this device only</div>
+</div>
+<div class="toast" id="toast">Saved</div>
+
+<script>
+const $=s=>document.querySelector(s);const $$=s=>document.querySelectorAll(s);
+const fmt0=n=>'$'+Number(n).toLocaleString('en-US',{maximumFractionDigits:0});
+const fmt2=n=>'$'+Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+
+let state={
+ goals:[
+  {mono:'H',name:'Primary Residence',target:850000,have:472000,year:2028,freq:'One-time'},
+  {mono:'A',name:'Automotive',target:240000,have:196400,year:2027,freq:'One-time'},
+  {mono:'R',name:'Residency Abroad',target:120000,have:118200,year:2026,freq:'One-time'},
+  {mono:'I',name:'Independence Target',target:995000,have:361000,year:2030,freq:'Recurring'},
+ ],
+ assets:[
+  {name:'Brokerage (…08ea)',sub:'Invested assets · 100% allocated',val:612400.18},
+  {name:'Equity Holdings',sub:'Restricted stock award',val:284750.00},
+  {name:'Operating Account',sub:'Business · monthly sweep',val:167300.55},
+  {name:'Real Assets',sub:'As of 04/08/2026',val:82500.00},
+ ]
+};
+try{const s=JSON.parse(localStorage.getItem('wpState2'));if(s&&s.goals)state=s;}catch(e){}
+function persist(){try{localStorage.setItem('wpState2',JSON.stringify(state));}catch(e){}}
+
+function render(){
+  const sum=state.assets.reduce((a,x)=>a+x.val,0);
+  $('#totalAssets').textContent=fmt2(sum);
+  $('#chgAmt').textContent='+'+fmt0(sum*0.031);
+  $('#acctCount').textContent=state.assets.length;
+  $('#goalCnt').textContent=state.goals.length+' active';
+
+  $('#goalList').innerHTML=state.goals.map((g,i)=>{
+    const pct=Math.min(100,Math.round(g.have/g.target*100));
+    const est=Math.min(g.target,g.have*1.42);
+    const gap=Math.max(0,g.target-est);
+    const status=pct>=75?'on-track':'check-in';
+    return `<div class="goal" data-i="${i}">
+      <div class="gpad">
+        <div class="ghead">
+          <div class="gmono">${g.mono}</div>
+          <div><div class="gname">${g.name}</div>
+          <div class="gstat ${status}">${status==='on-track'?'On track':'Check in'}</div></div>
+          <div class="gyear">Spending year ${g.year}</div>
+        </div>
+        <div class="bar"><div class="fill" style="width:${pct}%"></div></div>
+        <div class="gnums"><span>Estimated <b>${pct}%</b> of target</span><span>Target <b>${fmt0(g.target)}</b></span></div>
+      </div>
+      <div class="grows">
+        <div class="grow"><span class="k">Dedicated today</span><span class="v">${fmt0(g.have)}</span></div>
+        <div class="grow"><span class="k">Estimated amount you'll have*</span><span class="v">${fmt0(est)} (${Math.round(est/g.target*100)}%)</span></div>
+        <div class="grow"><span class="k">Gap</span><span class="v" style="color:${gap>0?'var(--red)':'var(--green)'}">${gap>0?fmt0(gap):'Fully funded'}</span></div>
+        <div class="grow"><span class="k">Frequency</span><span class="v">${g.freq}</span></div>
+      </div>
+    </div>`;
+  }).join('');
+  $$('.goal').forEach(g=>g.onclick=()=>g.classList.toggle('open'));
+
+  $('#assetList').innerHTML=state.assets.map(a=>`
+    <div class="arow"><div class="amid"><div class="at">${a.name}</div><div class="as">${a.sub}</div></div>
+    <div class="aval">${fmt2(a.val)}</div></div>`).join('')
+    +`<div class="arow totrow"><div class="amid"><div class="at">Total</div></div><div class="aval">${fmt2(sum)}</div></div>`;
+}
+
+const sheet=$('#sheet'),overlay=$('#overlay');
+function openSheet(){
+  $('#goalFields').innerHTML=state.goals.map((g,i)=>`
+    <div class="field"><label>${g.name}</label><input data-k="name" data-i="${i}" value="${g.name}"></div>
+    <div class="frow">
+      <div class="field"><label>Target $</label><input data-k="target" data-i="${i}" inputmode="numeric" value="${g.target}"></div>
+      <div class="field"><label>Dedicated $</label><input data-k="have" data-i="${i}" inputmode="numeric" value="${g.have}"></div>
+      <div class="field"><label>Year</label><input data-k="year" data-i="${i}" inputmode="numeric" value="${g.year}"></div>
+    </div>`).join('')+
+    state.assets.map((a,i)=>`
+    <div class="frow"><div class="field" style="flex:2"><label>${a.name}</label><input data-ak="name" data-i="${i}" value="${a.name}"></div>
+    <div class="field"><label>Value $</label><input data-ak="val" data-i="${i}" inputmode="numeric" value="${a.val}"></div></div>`).join('');
+  overlay.classList.add('show');sheet.classList.add('show');
+}
+function closeSheet(){overlay.classList.remove('show');sheet.classList.remove('show')}
+$('#editBtn').onclick=openSheet;
+overlay.onclick=closeSheet;
+document.addEventListener('click',e=>{if(e.target.id==='totalAssets')openSheet()});
+$('#saveBtn').onclick=()=>{
+  $$('#goalFields input').forEach(inp=>{
+    const i=+inp.dataset.i;
+    if(inp.dataset.k){const k=inp.dataset.k;
+      state.goals[i][k]=(k==='name')?inp.value:parseFloat(String(inp.value).replace(/[^0-9.]/g,''))||0;
+      if(k==='name')state.goals[i].mono=inp.value.trim().charAt(0).toUpperCase()||'G';
+    }else if(inp.dataset.ak){const k=inp.dataset.ak;
+      state.assets[i][k]=(k==='name')?inp.value:parseFloat(String(inp.value).replace(/[^0-9.]/g,''))||0;}
+  });
+  persist();render();closeSheet();toast('Saved');
+};
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1300)}
+render();
+</script>
+</body>
+</html>
