@@ -39,7 +39,9 @@ body{
 .iconbtn{width:36px;height:36px;border-radius:50%;background:var(--chip);border:none;color:var(--text);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px}
 .balwrap{text-align:center;padding:18px 18px 6px}
 .ballabel{font-size:13px;color:var(--sub);letter-spacing:.3px}
-.balance{font-size:44px;font-weight:700;letter-spacing:-1px;margin:6px 0 4px;cursor:pointer}
+.balance{font-size:44px;font-weight:700;letter-spacing:-1px;margin:6px 0 4px;cursor:pointer;font-variant-numeric:tabular-nums;transition:color .3s}
+.balance.flup{color:var(--green)}
+.balance.fldn{color:var(--red)}
 .balchange{font-size:15px;font-weight:600}
 .balchange .pct{border-radius:8px;padding:2px 8px;margin-left:6px;font-size:13px}
 .chart{padding:6px 0 0}
@@ -150,6 +152,9 @@ body{
     <svg viewBox="0 0 430 88" preserveAspectRatio="none">
       <defs><linearGradient id="grad" x1="0" y1="0" x2="0" y2="1">
         <stop offset="0" stop-color="#ab9ff2" stop-opacity=".35"/><stop offset="1" stop-color="#ab9ff2" stop-opacity="0"/>
+      </linearGradient>
+      <linearGradient id="gradr" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#ff5c5c" stop-opacity=".3"/><stop offset="1" stop-color="#ff5c5c" stop-opacity="0"/>
       </linearGradient></defs>
       <path id="chartFill" fill="url(#grad)"/>
       <path id="chartLine" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round"/>
@@ -262,6 +267,35 @@ try{const saved=JSON.parse(localStorage.getItem('walletState'));if(saved&&typeof
 try{const th=localStorage.getItem('walletTheme');if(th)document.body.dataset.theme=th;}catch(e){}
 function persist(){try{localStorage.setItem('walletState',JSON.stringify(state));}catch(e){}}
 
+// ---- live market simulation (regimes: uptrend / chop / dip / recovery) ----
+let livePts=[];
+let regime={drift:0.0005,left:15};
+function nextRegime(){
+  const r=Math.random();
+  if(r<0.42)      regime={drift: 0.0007+Math.random()*0.0007, left:12+Math.random()*22|0};
+  else if(r<0.68) regime={drift: 0.0000+Math.random()*0.0002, left:10+Math.random()*18|0};
+  else if(r<0.90) regime={drift:-0.0006-Math.random()*0.0006, left: 6+Math.random()*12|0};
+  else            regime={drift: 0.0014+Math.random()*0.0009, left: 5+Math.random()*9|0};
+}
+function marketTick(){
+  if(--regime.left<=0)nextRegime();
+  const prev=state.bal;
+  const noise=(Math.random()-0.5)*0.0038;
+  const jump=Math.random()<0.03?(Math.random()-0.5)*0.014:0;
+  state.bal*=1+regime.drift+noise+jump;
+  state.chAmt+= state.bal-prev;
+  state.chPct=state.chAmt/(state.bal-state.chAmt)*100;
+  // token day-changes wiggle too
+  TOKENS.forEach(t=>{t.ch+=(Math.random()-0.5)*0.12+regime.drift*60;t.ch=Math.max(-19,Math.min(28,t.ch))});
+  const up=state.bal>=prev;
+  renderNumbersOnly(up);
+  livePts.push(state.bal);if(livePts.length>80)livePts.shift();
+  drawChart();
+  persist();
+}
+setInterval(marketTick,1900);
+window.addEventListener('visibilitychange',()=>{if(document.hidden)persist()});
+
 function icon(sym,color,glyph){return `<svg viewBox="0 0 42 42"><circle cx="21" cy="21" r="21" fill="${color}"/><text x="21" y="28" font-size="18" font-weight="700" text-anchor="middle" fill="#fff" font-family="Arial">${glyph}</text></svg>`}
 const TOKENS=[
  {sym:'SOL', name:'Solana',  w:.38, price:172.40, ch:+5.12, color:'#9945FF', icon:icon('SOL','#9945FF','S')},
@@ -295,6 +329,12 @@ const NFTS=[
 
 let swapFrom=0, swapTo=1;
 
+function renderNumbersOnly(up){
+  render();
+  const b=$('#balance');
+  const cls=up?'flup':'fldn';
+  b.classList.add(cls);setTimeout(()=>b.classList.remove(cls),430);
+}
 function render(){
   $('#acctName').textContent=state.name;
   $('#balance').textContent=fmt(state.bal);
@@ -347,17 +387,29 @@ function renderSwap(){
   $('#swapRate').textContent=`1 ${a.sym} ≈ ${(a.price/b.price).toLocaleString('en-US',{maximumFractionDigits:5})} ${b.sym}`;
 }
 
-let chartSeed=42;
+function seedChart(){
+  livePts=[];let v=state.bal*(0.984+Math.random()*0.01),sd=0.0006,left=7;
+  for(let i=0;i<32;i++){
+    if(--left<=0){const r=Math.random();sd=r<0.5?0.0008:r<0.8?0.0001:-0.0008;left=5+Math.random()*8|0;}
+    v*=1+sd+(Math.random()-0.5)*0.0036;livePts.push(v);
+  }
+  livePts.push(state.bal);
+}
 function drawChart(){
-  const W=430,H=88,N=60;let pts=[],v=0.35,seed=chartSeed;
-  const rand=()=>{seed=(seed*9301+49297)%233280;return seed/233280};
-  for(let i=0;i<N;i++){v+=(rand()-0.44)*0.12;v=Math.max(0.08,Math.min(0.92,v));pts.push(v)}
-  for(let i=N-8;i<N;i++)pts[i]=Math.min(.92,pts[i]+(i-(N-8))*0.035);
-  const step=W/(N-1);
-  let d='M0 '+(H-pts[0]*H).toFixed(1);
-  pts.forEach((p,i)=>{if(i>0)d+=' L'+(i*step).toFixed(1)+' '+(H-p*H).toFixed(1)});
-  $('#chartLine').setAttribute('d',d);
+  if(livePts.length<2)seedChart();
+  const W=430,H=88,min=Math.min(...livePts),max=Math.max(...livePts),rng=(max-min)||1;
+  const step=W/(livePts.length-1);
+  let d='';
+  livePts.forEach((p,i)=>{
+    const y=H-6-((p-min)/rng)*(H-14);
+    d+=(i?' L':'M')+(i*step).toFixed(1)+' '+y.toFixed(1);
+  });
+  const n=livePts.length,back=Math.min(6,n-1);
+  const down=livePts[n-1]<livePts[n-1-back];
+  const line=$('#chartLine');line.setAttribute('d',d);
+  line.setAttribute('stroke',down?'var(--red)':'var(--accent)');
   $('#chartFill').setAttribute('d',d+` L${W} ${H} L0 ${H} Z`);
+  $('#chartFill').setAttribute('fill',down?'url(#gradr)':'url(#grad)');
 }
 
 // nav / pages
@@ -387,12 +439,12 @@ $('#saveBtn').onclick=()=>{
   state.bal=parseFloat(String($('#inBal').value).replace(/[^0-9.\-]/g,''))||0;
   state.chAmt=parseFloat(String($('#inChAmt').value).replace(/[^0-9.\-]/g,''))||0;
   state.chPct=parseFloat(String($('#inChPct').value).replace(/[^0-9.\-]/g,''))||0;
-  persist();render();closeSheet();toast('saved ✓');
+  persist();seedChart();render();closeSheet();toast('saved ✓');
 };
 
 function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1400)}
 
-$$('.range').forEach(b=>b.onclick=()=>{$$('.range').forEach(x=>x.classList.remove('active'));b.classList.add('active');chartSeed=Math.floor(Math.random()*99999);drawChart()});
+$$('.range').forEach(b=>b.onclick=()=>{$$('.range').forEach(x=>x.classList.remove('active'));b.classList.add('active');seedChart();drawChart()});
 $$('.action').forEach(b=>{if(!b.dataset.goto)b.onclick=()=>toast('this is a mockup 😄')});
 $('#swapIn').oninput=renderSwap;
 $('#swapFlip').onclick=()=>{[swapFrom,swapTo]=[swapTo,swapFrom];renderSwap()};
