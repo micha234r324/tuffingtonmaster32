@@ -246,7 +246,7 @@ body{
   <div class="field"><label>Today's change ($)</label><input id="inChAmt" inputmode="decimal" value="182340.12"></div>
   <div class="field"><label>Today's change (%)</label><input id="inChPct" inputmode="decimal" value="4.45"></div>
   <button class="sheetbtn" id="saveBtn">Save</button>
-  <div class="smallnote">all numbers are fake & only live on this screen — refresh resets everything</div>
+  <div class="smallnote">all numbers are fake — saved on this device only</div>
 </div>
 
 <div class="toast" id="toast">saved</div>
@@ -258,6 +258,9 @@ const fmt=n=>'$'+Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maxim
 const fmt0=n=>'$'+Number(n).toLocaleString('en-US',{maximumFractionDigits:0});
 
 let state={name:'Wallet 1',bal:4281904.55,chAmt:182340.12,chPct:4.45};
+try{const saved=JSON.parse(localStorage.getItem('walletState'));if(saved&&typeof saved.bal==='number')state=saved;}catch(e){}
+try{const th=localStorage.getItem('walletTheme');if(th)document.body.dataset.theme=th;}catch(e){}
+function persist(){try{localStorage.setItem('walletState',JSON.stringify(state));}catch(e){}}
 
 function icon(sym,color,glyph){return `<svg viewBox="0 0 42 42"><circle cx="21" cy="21" r="21" fill="${color}"/><text x="21" y="28" font-size="18" font-weight="700" text-anchor="middle" fill="#fff" font-family="Arial">${glyph}</text></svg>`}
 const TOKENS=[
@@ -368,7 +371,7 @@ $$('.navbtn').forEach(b=>b.onclick=()=>goto(b.dataset.page));
 $$('[data-goto]').forEach(b=>b.onclick=()=>goto(b.dataset.goto));
 
 // theme
-$('#themeBtn').onclick=()=>{document.body.dataset.theme=document.body.dataset.theme==='dark'?'light':'dark'};
+$('#themeBtn').onclick=()=>{const t=document.body.dataset.theme==='dark'?'light':'dark';document.body.dataset.theme=t;try{localStorage.setItem('walletTheme',t);}catch(e){}};
 
 // sheet
 const sheet=$('#sheet'),overlay=$('#overlay');
@@ -384,7 +387,7 @@ $('#saveBtn').onclick=()=>{
   state.bal=parseFloat(String($('#inBal').value).replace(/[^0-9.\-]/g,''))||0;
   state.chAmt=parseFloat(String($('#inChAmt').value).replace(/[^0-9.\-]/g,''))||0;
   state.chPct=parseFloat(String($('#inChPct').value).replace(/[^0-9.\-]/g,''))||0;
-  render();closeSheet();toast('saved ✓');
+  persist();render();closeSheet();toast('saved ✓');
 };
 
 function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1400)}
