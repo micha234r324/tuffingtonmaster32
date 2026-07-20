@@ -61,6 +61,7 @@ body{
 .amid .at{font-size:14px;font-weight:600;color:var(--ink)}
 .amid .as{font-size:11.5px;color:var(--sub);margin-top:3px}
 .aval{margin-left:auto;font-size:14px;font-weight:600;color:var(--ink)}
+.lnk{font-size:8.5px;letter-spacing:.1em;color:var(--gold);border:1px solid var(--gold);border-radius:3px;padding:1px 4px;margin-left:6px;vertical-align:1px;font-weight:700}
 .totrow{background:#faf9f6}
 .disc{font-size:10px;color:var(--sub);line-height:1.55;padding:18px 20px 8px}
 .foot{text-align:center;padding:10px 20px 20px;font-size:10px;color:var(--sub);letter-spacing:.1em}
@@ -120,7 +121,7 @@ body{
   <h3>Edit plan <span class="pill">MOCKUP</span></h3>
   <div id="goalFields"></div>
   <button class="sheetbtn" id="saveBtn">Save changes</button>
-  <div class="smallnote">all numbers are fake — saved on this device only</div>
+  <div class="smallnote">all numbers are fake — saved on this device only. linked accounts (digital assets, brokerage) are edited inside their own apps.</div>
 </div>
 <div class="toast" id="toast">Saved</div>
 
@@ -137,20 +138,34 @@ let state={
   {mono:'I',name:'Independence Target',target:995000,have:361000,year:2030,freq:'Recurring'},
  ],
  assets:[
-  {name:'Brokerage (…08ea)',sub:'Invested assets · 100% allocated',val:612400.18},
-  {name:'Equity Holdings',sub:'Restricted stock award',val:284750.00},
-  {name:'Operating Account',sub:'Business · monthly sweep',val:167300.55},
+  {name:'Roblox Studio Revenue',sub:'Business · DevEx · monthly sweep',val:167300.55},
+  {name:'Game Equity Holdings',sub:'Minority stakes · marked quarterly',val:284750.00},
+  {name:'Cash Reserve',sub:'Operating account',val:96400.00},
   {name:'Real Assets',sub:'As of 04/08/2026',val:82500.00},
  ]
 };
 try{const s=JSON.parse(localStorage.getItem('wpState2'));if(s&&s.goals)state=s;}catch(e){}
 function persist(){try{localStorage.setItem('wpState2',JSON.stringify(state));}catch(e){}}
 
+// ---- linked accounts: read live values saved by the other apps (same domain) ----
+function linkedAccounts(){
+  const out=[];
+  try{const w=JSON.parse(localStorage.getItem('walletState'));
+    if(w&&typeof w.bal==='number')out.push({name:'Digital Assets',sub:'Linked · self-custody wallet',val:w.bal,linked:true});
+  }catch(e){}
+  try{const s=JSON.parse(localStorage.getItem('stkState2'));
+    if(s&&s.holdings)out.push({name:'Brokerage (…08ea)',sub:'Linked · invested assets',val:s.holdings.reduce((a,x)=>a+x.shares*x.price,0),linked:true});
+  }catch(e){}
+  return out;
+}
+setInterval(()=>render(),2500); // keep linked values fresh while open
+
 function render(){
-  const sum=state.assets.reduce((a,x)=>a+x.val,0);
+  const linked=linkedAccounts();
+  const sum=state.assets.reduce((a,x)=>a+x.val,0)+linked.reduce((a,x)=>a+x.val,0);
   $('#totalAssets').textContent=fmt2(sum);
   $('#chgAmt').textContent='+'+fmt0(sum*0.031);
-  $('#acctCount').textContent=state.assets.length;
+  $('#acctCount').textContent=state.assets.length+linked.length;
   $('#goalCnt').textContent=state.goals.length+' active';
 
   $('#goalList').innerHTML=state.goals.map((g,i)=>{
@@ -179,8 +194,9 @@ function render(){
   }).join('');
   $$('.goal').forEach(g=>g.onclick=()=>g.classList.toggle('open'));
 
-  $('#assetList').innerHTML=state.assets.map(a=>`
-    <div class="arow"><div class="amid"><div class="at">${a.name}</div><div class="as">${a.sub}</div></div>
+  const rows=[...linked,...state.assets];
+  $('#assetList').innerHTML=rows.map(a=>`
+    <div class="arow"><div class="amid"><div class="at">${a.name}${a.linked?' <span class="lnk">LINKED</span>':''}</div><div class="as">${a.sub}</div></div>
     <div class="aval">${fmt2(a.val)}</div></div>`).join('')
     +`<div class="arow totrow"><div class="amid"><div class="at">Total</div></div><div class="aval">${fmt2(sum)}</div></div>`;
 }
